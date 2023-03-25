@@ -2,8 +2,16 @@ import math
 import random
 import sys
 import time
-
+import socket
+import threading
+#constants
 MAX_NUMBER_OF_DIGITS = len(str(sys.maxsize)) - 1 #=18
+HEADER = 64 #size of the header in bytes that will contain the length of the message
+SERVER = socket.gethostbyname(socket.gethostname())
+FORMAT = 'utf-8'
+DISCONNECT_MESSAGE = "!DISCONNECT"
+
+
 #GLOBAL VARIABLES
 #encoding dictionary
 #key is the character, value is the code
@@ -82,10 +90,6 @@ def decode(list_of_codes):
             list_of_msgs[i] += list(encoding_map.keys())[list(encoding_map.values()).index((list_of_codes[i] // (37 ** (4-j))) % 37)]
     return list_of_msgs
 
-def gcd(a:int, b:int) -> int:
-  if b == 0:
-    return a
-  return gcd(b, a % b)
 
 #function to check if a number is prime
 def isPrime(n):
@@ -163,11 +167,11 @@ def keyGeneration():
     while (e < phi):
         # e must be co-prime to phi and
         # smaller than phi.
-        if(gcd(e, phi) == 1):
+        gcd = ExtendedEuclidianAlgo(e, phi)[0]
+        if(gcd == 1):
             break
         else:
             e = e+1
-    print("e=",e)
     # Private key (d) using extended Euclid Algorithm
     d = linearCongruence(e, 1, phi)
     
@@ -192,29 +196,26 @@ def decrypt(msg_cipher, d, n):
     m = modularExponent(msg_cipher, d, n)
     return m
 
-def main():
-    public_key, private_key = keyGeneration()
-    print("public key",public_key)
-    print("private key",private_key)
-    msg = input("Enter the message: ")
+def encryption(msg,public_key):
     list_of_blocks = preprocessing(msg)
-    print("list_of_blocks",list_of_blocks)
+    # print("list_of_blocks",list_of_blocks)
     list_of_codes = encode(list_of_blocks)
-    print("list_of_codes",list_of_codes)
+    # print("list_of_codes",list_of_codes)
     list_of_ciphers = [0] * len(list_of_codes)
     for i in range(len(list_of_codes)):
         list_of_ciphers[i] = encrypt(list_of_codes[i], public_key[0], public_key[1])
-    print("list_of_ciphers",list_of_ciphers)
+    # print("list_of_ciphers",list_of_ciphers)
+    return list_of_ciphers
+
+def decryption(private_key,list_of_ciphers):
     list_of_decoded = [0] * len(list_of_ciphers)
     for i in range(len(list_of_ciphers)):
         list_of_decoded[i] = decrypt(list_of_ciphers[i], private_key[0], private_key[1])
-    print("list_of_decoded",list_of_decoded)
+    # print("list_of_decoded",list_of_decoded)
     list_of_msgs = decode(list_of_decoded)
     print(list_of_msgs)
     for i in range(len(list_of_msgs)):
         print(list_of_msgs[i], end = '')
     print()
+    return list_of_msgs
 
-
-while True:
-    main()
