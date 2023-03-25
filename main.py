@@ -1,9 +1,9 @@
 import math
 import random
 import sys
-import time
+# import time
 import socket
-import threading
+# import threading
 #constants
 MAX_NUMBER_OF_DIGITS = len(str(sys.maxsize)) - 1 #=18
 HEADER = 64 #size of the header in bytes that will contain the length of the message
@@ -157,10 +157,10 @@ def linearCongruence(A, B, N):
     
 #this function generates the public and private keys
 def keyGeneration():
-    # p = randPrime(0,10**(MAX_NUMBER_OF_DIGITS-1), 10**MAX_NUMBER_OF_DIGITS)
-    # q = randPrime(13,10**(MAX_NUMBER_OF_DIGITS-1), 10**MAX_NUMBER_OF_DIGITS)
-    p = 138014606015037877
-    q = 371821189834863247
+    p = randPrime(0,10**(MAX_NUMBER_OF_DIGITS-1), 10**MAX_NUMBER_OF_DIGITS)
+    q = randPrime(13,10**(MAX_NUMBER_OF_DIGITS-1), 10**MAX_NUMBER_OF_DIGITS)
+    # p = 138014606015037877
+    # q = 371821189834863247
     n = p * q
     phi = (q-1) * (p-1)
     e = 2 #public key gcd(e, phie) = 1
