@@ -1,7 +1,11 @@
 import math
 import random
+import sys
+import time
 
-#coding dictionary
+MAX_NUMBER_OF_DIGITS = len(str(sys.maxsize)) - 1 #=18
+#GLOBAL VARIABLES
+#encoding dictionary
 #key is the character, value is the code
 encoding_map = {
     '0': 0,
@@ -43,7 +47,7 @@ encoding_map = {
     ' ': 36,
 }
 
-
+#FUNCTIONS
 #msg is a string
 def preprocessing(msg):
     n = math.ceil(len(msg) / 5)
@@ -56,9 +60,9 @@ def preprocessing(msg):
             s += ' ' * (5 - len(s)) #add spaces to the end of the string till it is 5 characters long
             list_of_msgs.append(s)
     return list_of_msgs
-    
-def encode(msg):
-    list_of_msgs = preprocessing(msg)
+
+#list_of_msgs is a list of strings the output of the preprocessing function
+def encode(list_of_msgs):
     list_of_codes = [0] * len(list_of_msgs)
     for i in range(len(list_of_msgs)):
         for j in range(5):
@@ -74,23 +78,86 @@ def decode(list_of_codes):
     for i in range(len(list_of_codes)):
         list_of_msgs[i] = ''
         for j in range(5):
+            #beutiful line of code
             list_of_msgs[i] += list(encoding_map.keys())[list(encoding_map.values()).index((list_of_codes[i] // (37 ** (4-j))) % 37)]
     return list_of_msgs
 
-def gcd(a, h):
-    temp = 0
-    while(1):
-        temp = a % h
-        if (temp == 0):
-            return h
-        a = h
-        h = temp
+def gcd(a:int, b:int) -> int:
+  if b == 0:
+    return a
+  return gcd(b, a % b)
 
+#function to check if a number is prime
+def isPrime(n):
+    for i in range(2,int(n**0.5)+1):
+        if n%i==0:
+            return False
+        
+    return True
     
-def encrypt():
-    q = 17
-    p = 19
-    n = q * p
+#function to get a random prime number
+def randPrime(seed,start,end):
+    random.seed(seed) #to get different random numbers each time
+    n = random.randint(start, end)
+    while not isPrime(n):
+        n = random.randint(start, end)
+    return n
+
+#msg_coded is the plaintext
+def encrypt(msg_coded,e,n):
+    msg_coded = int(msg_coded)
+    c = modularExponent(msg_coded,e,n)
+    return c
+
+#this function get the gcd of 2 numbers and the coefficients of the linear combination
+#where d = x*a + y*b
+def ExtendedEuclidianAlgo(a, b):
+
+	# base case
+	if b == 0 :
+		return a, 1, 0 # gcd(a,0) = a*1 + 0*0 = a
+		
+	d, x1, y1 = ExtendedEuclidianAlgo(b, a%b)
+	
+	x = y1
+	y = x1 - (a//b) * y1
+	
+	return d, x, y
+	
+#this function solves the linear congruence equation ax = b (mod n)
+def linearCongruence(A, B, N):
+    A = A % N
+    B = B % N
+    #EXPLAINATION:
+    #n/ ax - b
+    #cn = ax -b
+    #ax - kn = b => diofantine equation
+    #condition for solution to exist: gcd(a,n) / b
+    #d = gcd(A, N)
+    #and d = u*A + v*N the gcd as linear combination of A and N where u and v are integers
+    # let s = B/d
+    # then x = s*u (mod N)
+    # k = s*v (mod N)
+    d, u, v = ExtendedEuclidianAlgo(A, N)
+    
+    # No solution exists if d does not divide b but in our case this will never happen
+    # because b = 1 and d = gcd(e,phi(n)) = 1
+
+    s = B // d
+    x = (u * s) % N
+    # k = (v * s) % N
+    #make sure x is positive
+    while (x < 0):
+        x += N
+    return x    
+    
+#this function generates the public and private keys
+def keyGeneration():
+    # p = randPrime(0,10**(MAX_NUMBER_OF_DIGITS-1), 10**MAX_NUMBER_OF_DIGITS)
+    # q = randPrime(13,10**(MAX_NUMBER_OF_DIGITS-1), 10**MAX_NUMBER_OF_DIGITS)
+    p = 138014606015037877
+    q = 371821189834863247
+    n = p * q
     phi = (q-1) * (p-1)
     e = 2 #public key gcd(e, phie) = 1
     while (e < phi):
@@ -100,20 +167,54 @@ def encrypt():
             break
         else:
             e = e+1
+    print("e=",e)
+    # Private key (d) using extended Euclid Algorithm
+    d = linearCongruence(e, 1, phi)
+    
+    public_key = (e, n) #that will be sent to the sender for encryption
+    private_key = (d, n) #will be used for decryption
+    return public_key, private_key
 
+#this function calculates a^e mod n        
+def modularExponent(a, e, n):
+    e = bin(e)[2:]#because the first two characters are 0b
+    e = e[::-1]#reverse the string
+    x = 1#the result
+    for i in range(len(e)):
+        if e[i] == '1':
+            x = x * a % n
+        a = a * a % n
+    return x
 
-def decrypt():
-    pass
+#msg_cipher is the ciphertext
+def decrypt(msg_cipher, d, n):
+    msg_cipher = int(msg_cipher)
+    m = modularExponent(msg_cipher, d, n)
+    return m
 
 def main():
-    
+    public_key, private_key = keyGeneration()
+    print("public key",public_key)
+    print("private key",private_key)
     msg = input("Enter the message: ")
-    list_of_codes = encode(msg)
-    print(list_of_codes)
-    list_of_msgs = decode(list_of_codes)
+    list_of_blocks = preprocessing(msg)
+    print("list_of_blocks",list_of_blocks)
+    list_of_codes = encode(list_of_blocks)
+    print("list_of_codes",list_of_codes)
+    list_of_ciphers = [0] * len(list_of_codes)
+    for i in range(len(list_of_codes)):
+        list_of_ciphers[i] = encrypt(list_of_codes[i], public_key[0], public_key[1])
+    print("list_of_ciphers",list_of_ciphers)
+    list_of_decoded = [0] * len(list_of_ciphers)
+    for i in range(len(list_of_ciphers)):
+        list_of_decoded[i] = decrypt(list_of_ciphers[i], private_key[0], private_key[1])
+    print("list_of_decoded",list_of_decoded)
+    list_of_msgs = decode(list_of_decoded)
     print(list_of_msgs)
     for i in range(len(list_of_msgs)):
         print(list_of_msgs[i], end = '')
     print()
 
-main()
+
+while True:
+    main()
