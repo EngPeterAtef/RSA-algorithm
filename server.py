@@ -61,12 +61,17 @@ def start_listening():
     print(f"[LISTENING] Server is listening on {SERVER}")
     while True:
         conn, addr = _server.accept() #blocking line so we will wait till a client connects
-        thread = threading.Thread(target=handle_msg, args=(conn, addr))
-        thread.start()
+        # thread = threading.Thread(target=handle_msg, args=(conn, addr))
+        # thread.start()
         #the number of active connections is the number of threads
         print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
         conn.send(str(puplic_key[0]).encode(FORMAT))
         conn.send(str(puplic_key[1]).encode(FORMAT))
+        e = conn.recv(2024).decode(FORMAT)
+        n = conn.recv(2024).decode(FORMAT)
+        print(f"e = {e} n = {n}")
+        handle_msg(conn, addr)
+
 
 
 puplic_key , private_key = keyGeneration()

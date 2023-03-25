@@ -38,23 +38,16 @@ def send(msg):
 #                 connected = False
 #     conn.close()
 
-def start_listening():
-    _client.listen()
-    print(f"[LISTENING] Clinet is listening on {SERVER}")
-    while True:
-        conn, addr = _client.accept() #blocking line so we will wait till a client connects
-        thread = threading.Thread(target=handle_msg, args=(conn, addr))
-        thread.start()
-        #the number of active connections is the number of threads
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
-        send(str(puplic_key[0]))
-        send(str(puplic_key[1]))
+
 
 #create the keys
 puplic_key , private_key = keyGeneration()
 #the keys of the server
 e = _client.recv(2024).decode(FORMAT)
 n = _client.recv(2024).decode(FORMAT)
+
+_client.send(str(puplic_key[0]).encode(FORMAT))
+_client.send(str(puplic_key[1]).encode(FORMAT))
 
 while True:
     msg = input("Enter your message (or type exit to end the connection): ")
