@@ -20,34 +20,34 @@ def send(msg):
 #this function is called when a client connects to the server
 #it handles the client
 #this function runs for each client in separate threads
-def handle_server(conn, addr):
-    print(f"[NEW CONNECTION] {addr} connected.")
-    connected = True
-    while connected:
-        #receive the header that contains the length of the message
-        msg_length = conn.recv(HEADER).decode(FORMAT)
-        #if the header is empty, the client has disconnected
-        if msg_length:
-            msg_length = int(msg_length)
-            #receive the actual message
-            msg = conn.recv(msg_length).decode(FORMAT)
-            print(f"[{addr}] {msg}")
-            print("-----------------------------------------")
+# def handle_server(conn, addr):
+#     print(f"[NEW CONNECTION] {addr} connected.")
+#     connected = True
+#     while connected:
+#         #receive the header that contains the length of the message
+#         msg_length = conn.recv(HEADER).decode(FORMAT)
+#         #if the header is empty, the client has disconnected
+#         if msg_length:
+#             msg_length = int(msg_length)
+#             #receive the actual message
+#             msg = conn.recv(msg_length).decode(FORMAT)
+#             print(f"[{addr}] {msg}")
+#             print("-----------------------------------------")
             
-            #to handle disconnection
-            if msg == DISCONNECT_MESSAGE:
-                connected = False
-    conn.close()
+#             #to handle disconnection
+#             if msg == DISCONNECT_MESSAGE:
+#                 connected = False
+#     conn.close()
 
-def start_listening():
-    _client.listen()
-    print(f"[LISTENING] Client is listening on {SERVER}")
-    while True:
-        conn, addr = _client.accept()
-        thread = threading.Thread(target=handle_server, args=(conn, addr))
-        thread.start()
-        #the number of active connections is the number of threads
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
+# def start_listening():
+#     _client.listen()
+#     print(f"[LISTENING] Client is listening on {SERVER}")
+#     while True:
+#         conn, addr = _client.accept()
+#         thread = threading.Thread(target=handle_server, args=(conn, addr))
+#         thread.start()
+#         #the number of active connections is the number of threads
+#         print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
 
 e = _client.recv(2024).decode(FORMAT)
 n = _client.recv(2024).decode(FORMAT)

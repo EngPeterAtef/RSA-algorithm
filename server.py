@@ -27,7 +27,7 @@ def handle_client(conn, addr):
             tempList = msg.split(",")
             print("tempList",tempList)
             if len(tempList) == 1:
-                if tempList[0] != '[]':
+                if tempList[0] != '[]': #to handle the case of empty string sent by the client
                     list_of_ciphers.append(int(tempList[0][1:len(tempList[0])-1]))
                 
             else:
