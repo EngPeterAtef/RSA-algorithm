@@ -16,27 +16,48 @@ def send(msg):
 
 
 
-#this function is called when a client connects to the server
-#it handles the client
-#this function runs for each client in separate threads
-# def handle_server(conn, addr):
-#     print(f"[NEW CONNECTION] {addr} connected.")
-#     connected = True
-#     while connected:
-#         #receive the header that contains the length of the message
-#         msg_length = conn.recv(HEADER).decode(FORMAT)
-#         #if the header is empty, the client has disconnected
-#         if msg_length:
-#             msg_length = int(msg_length)
-#             #receive the actual message
-#             msg = conn.recv(msg_length).decode(FORMAT)
-#             print(f"[{addr}] {msg}")
-#             print("-----------------------------------------")
-            
-#             #to handle disconnection
-#             if msg == DISCONNECT_MESSAGE:
-#                 connected = False
-#     conn.close()
+def handle_msg(conn, addr):
+    print(f"[NEW CONNECTION] {addr} connected.")
+    # connected = True
+    while True:
+        msg = input("Enter your message (or type exit to end the connection): ").lower()
+        if msg == "exit":
+            send(DISCONNECT_MESSAGE)
+            break
+        list_of_ciphers = encryption(msg, (int(e), int(n)))
+        send(str(list_of_ciphers))
+        print(_client.recv(2024).decode(FORMAT))
+        print("typing....")
+        #receive the header that contains the length of the message
+        msg_length = conn.recv(HEADER).decode(FORMAT)
+        list_of_ciphers.clear()
+        #if the header is empty, the client has disconnected
+        if msg_length:
+            msg_length = int(msg_length)
+            #receive the actual message
+            msg = conn.recv(msg_length).decode(FORMAT)
+            #to handle disconnection
+            if msg == DISCONNECT_MESSAGE:
+                break
+            tempList = msg.split(",")
+            print("tempList",tempList)
+            if len(tempList) == 1:
+                if tempList[0] != '[]': #to handle the case of empty string sent by the client
+                    list_of_ciphers.append(int(tempList[0][1:len(tempList[0])-1]))
+                
+            else:
+                for i in range(len(tempList)):
+                    if i==0:
+                        list_of_ciphers.append(int(tempList[i][1:]))
+                    elif i==len(tempList)-1:
+                        list_of_ciphers.append(int(tempList[i][:len(tempList[i])-1]))
+                    else:
+                        list_of_ciphers.append(int(tempList[i]))
+            decryption(private_key,list_of_ciphers)
+            # print(f"[{addr}] {msg}")
+            print("-----------------------------------------")
+            conn.send("MSG RECEIVED".encode(FORMAT))
+    conn.close()
 
 
 
@@ -49,12 +70,6 @@ n = _client.recv(2024).decode(FORMAT)
 _client.send(str(puplic_key[0]).encode(FORMAT))
 _client.send(str(puplic_key[1]).encode(FORMAT))
 
-while True:
-    msg = input("Enter your message (or type exit to end the connection): ")
-    if msg == "exit":
-        send(DISCONNECT_MESSAGE)
-        break
-    list_of_ciphers = encryption(msg, (int(e), int(n)))
-    send(str(list_of_ciphers))
-    print(_client.recv(2024).decode(FORMAT))
+
+handle_msg(_client, ADDR)
 

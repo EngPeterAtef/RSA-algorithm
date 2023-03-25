@@ -10,24 +10,24 @@ _server.bind(ADDR)
 list_of_ciphers = []
 
 
-def send(msg):
+def send(conn,msg):
     message = msg.encode(FORMAT)
     msg_length = len(message) #the length of the message in bytes
     send_length = str(msg_length).encode(FORMAT) #the length of the message in bytes encoded in bytes
     send_length += b' ' * (HEADER - len(send_length)) #padding the header with encoded spaces 
-    _server.send(send_length) #send the header that contains the length of the message
-    _server.send(message) #send the message
+    conn.send(send_length) #send the header that contains the length of the message
+    conn.send(message) #send the message
 
     #this function is called when a client connects to the server
 #it handles the client
 #this function runs for each client in separate threads
-def handle_msg(conn, addr):
+def handle_msg(conn, addr,e,n):
     print(f"[NEW CONNECTION] {addr} connected.")
     # connected = True
     while True:
         #receive the header that contains the length of the message
         msg_length = conn.recv(HEADER).decode(FORMAT)
-        list_of_ciphers.clear()
+        list_of_ciphers = []
         #if the header is empty, the client has disconnected
         if msg_length:
             msg_length = int(msg_length)
@@ -54,6 +54,14 @@ def handle_msg(conn, addr):
             # print(f"[{addr}] {msg}")
             print("-----------------------------------------")
             conn.send("MSG RECEIVED".encode(FORMAT))
+            msg = input("Enter your message (or type exit to end the connection): ").lower()
+            if msg == "exit":
+                send(conn,DISCONNECT_MESSAGE)
+                break
+            list_of_ciphers = encryption(msg, (int(e), int(n)))
+            send(conn,str(list_of_ciphers))
+            print(conn.recv(2024).decode(FORMAT))
+            print("typing....")
     conn.close()
 
 def start_listening():
@@ -64,14 +72,14 @@ def start_listening():
         # thread = threading.Thread(target=handle_msg, args=(conn, addr))
         # thread.start()
         #the number of active connections is the number of threads
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
+        # print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
         conn.send(str(puplic_key[0]).encode(FORMAT))
         conn.send(str(puplic_key[1]).encode(FORMAT))
         e = conn.recv(2024).decode(FORMAT)
         n = conn.recv(2024).decode(FORMAT)
         print(f"e = {e} n = {n}")
-        handle_msg(conn, addr)
-
+        handle_msg(conn, addr,e,n)
+        
 
 
 puplic_key , private_key = keyGeneration()
