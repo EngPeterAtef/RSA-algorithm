@@ -1,11 +1,11 @@
 import math
 import random
-import sys
-# import time
+from Crypto.Util import number
+import os
 import socket
 # import threading
 #constants
-MAX_NUMBER_OF_DIGITS = len(str(sys.maxsize)) - 1 #=18
+# MAX_NUMBER_OF_DIGITS = len(str(sys.maxsize)) - 1 #=18
 HEADER = 64 #size of the header in bytes that will contain the length of the message
 SERVER = socket.gethostbyname(socket.gethostname())
 FORMAT = 'utf-8'
@@ -100,12 +100,13 @@ def isPrime(n):
     return True
     
 #function to get a random prime number
-def randPrime(seed,start,end):
+def randPrime(seed,n):
     random.seed(seed) #to get different random numbers each time
-    n = random.randint(start, end)
-    while not isPrime(n):
-        n = random.randint(start, end)
-    return n
+    num = random.randint(2**(n-1)+1, 2**n-1)
+    while not isPrime(num):
+        # n = random.randint(start, end)
+        num = random.randint(2**(n-1)+1, 2**n-1)
+    return num
 
 #msg_coded is the plaintext
 def encrypt(msg_coded,e,n):
@@ -157,8 +158,10 @@ def linearCongruence(A, B, N):
     
 #this function generates the public and private keys
 def keyGeneration():
-    p = randPrime(0,10**(MAX_NUMBER_OF_DIGITS-1), 10**MAX_NUMBER_OF_DIGITS)
-    q = randPrime(13,10**(MAX_NUMBER_OF_DIGITS-1), 10**MAX_NUMBER_OF_DIGITS)
+    #number.getPrime(number of bits, random function)
+    q = number.getPrime(1024, os.urandom)
+    p = number.getPrime(1024, os.urandom)
+    print(f"p = {p} and q = {q}")
     # p = 138014606015037877
     # q = 371821189834863247
     n = p * q

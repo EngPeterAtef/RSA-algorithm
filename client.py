@@ -4,7 +4,6 @@ PORT = 5050
 ADDR = (SERVER, PORT)
 
 _client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-_client.connect(ADDR)
 
 def send(msg):
     message = msg.encode(FORMAT)
@@ -63,9 +62,11 @@ def handle_msg(conn, addr):
 
 #create the keys
 puplic_key , private_key = keyGeneration()
+_client.connect(ADDR)
 #the keys of the server
 e = _client.recv(2024).decode(FORMAT)
 n = _client.recv(2024).decode(FORMAT)
+print(f"e = {e} n = {n}")
 
 _client.send(str(puplic_key[0]).encode(FORMAT))
 _client.send(str(puplic_key[1]).encode(FORMAT))

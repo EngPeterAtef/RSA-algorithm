@@ -37,7 +37,7 @@ def handle_msg(conn, addr,e,n):
             if msg == DISCONNECT_MESSAGE:
                 break
             tempList = msg.split(",")
-            print("tempList",tempList)
+            # print("tempList",tempList)
             if len(tempList) == 1:
                 if tempList[0] != '[]': #to handle the case of empty string sent by the client
                     list_of_ciphers.append(int(tempList[0][1:len(tempList[0])-1]))
