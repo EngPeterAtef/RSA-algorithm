@@ -4,7 +4,7 @@ RSA implementation using python
 
 #### **How to Run?**
 
-1. make sure you have the following libries
+1. make sure you have the following libraries:
    * math
    * socket
    * random
