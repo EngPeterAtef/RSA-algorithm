@@ -52,16 +52,17 @@ def handle_msg(conn, addr):
                         list_of_ciphers.append(int(tempList[i][:len(tempList[i])-1]))
                     else:
                         list_of_ciphers.append(int(tempList[i]))
-            decryption(private_key,list_of_ciphers)
+            res = decryption(private_key,list_of_ciphers)
+            print(res)
             # print(f"[{addr}] {msg}")
             print("-----------------------------------------")
             conn.send("MSG RECEIVED".encode(FORMAT))
     conn.close()
 
 
-
+print("[STARTING] client is starting...")
 #create the keys
-puplic_key , private_key = keyGeneration()
+puplic_key , private_key = keyGeneration(1024)
 _client.connect(ADDR)
 #the keys of the server
 e = _client.recv(2024).decode(FORMAT)

@@ -50,8 +50,8 @@ def handle_msg(conn, addr,e,n):
                         list_of_ciphers.append(int(tempList[i][:len(tempList[i])-1]))
                     else:
                         list_of_ciphers.append(int(tempList[i]))
-            decryption(private_key,list_of_ciphers)
-            # print(f"[{addr}] {msg}")
+            res = decryption(private_key,list_of_ciphers)
+            print(res)
             print("-----------------------------------------")
             conn.send("MSG RECEIVED".encode(FORMAT))
             msg = input("Enter your message (or type exit to end the connection): ").lower()
@@ -69,19 +69,19 @@ def start_listening():
     print(f"[LISTENING] Server is listening on {SERVER}")
     while True:
         conn, addr = _server.accept() #blocking line so we will wait till a client connects
-        # thread = threading.Thread(target=handle_msg, args=(conn, addr))
-        # thread.start()
-        #the number of active connections is the number of threads
-        # print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
         conn.send(str(puplic_key[0]).encode(FORMAT))
         conn.send(str(puplic_key[1]).encode(FORMAT))
         e = conn.recv(2024).decode(FORMAT)
         n = conn.recv(2024).decode(FORMAT)
+        thread = threading.Thread(target=handle_msg, args=(conn, addr,e,n))
+        thread.start()
+        #the number of active connections is the number of threads
+        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
         print(f"e = {e} n = {n}")
-        handle_msg(conn, addr,e,n)
+        # handle_msg(conn, addr,e,n)
         
 
 
-puplic_key , private_key = keyGeneration()
+puplic_key , private_key = keyGeneration(1024)
 print("[STARTING] server is starting...")
 start_listening()

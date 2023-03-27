@@ -3,7 +3,7 @@ import random
 from Crypto.Util import number
 import os
 import socket
-# import threading
+import threading
 #constants
 # MAX_NUMBER_OF_DIGITS = len(str(sys.maxsize)) - 1 #=18
 HEADER = 64 #size of the header in bytes that will contain the length of the message
@@ -157,13 +157,14 @@ def linearCongruence(A, B, N):
     return x    
     
 #this function generates the public and private keys
-def keyGeneration():
+def keyGeneration(n_bits):
     #number.getPrime(number of bits, random function)
-    q = number.getPrime(1024, os.urandom)
-    p = number.getPrime(1024, os.urandom)
-    print(f"p = {p} and q = {q}")
+    #for n bits it will generate prime with 2^n <= p < 2^(n+1)
+    q = number.getPrime(n_bits, os.urandom)
+    p = number.getPrime(n_bits, os.urandom)
     # p = 138014606015037877
     # q = 371821189834863247
+    print(f"p = {p} and q = {q}")
     n = p * q
     phi = (q-1) * (p-1)
     e = 2 #public key gcd(e, phie) = 1
@@ -216,11 +217,18 @@ def decryption(private_key,list_of_ciphers):
         list_of_decoded[i] = decrypt(list_of_ciphers[i], private_key[0], private_key[1])
     # print("list_of_decoded",list_of_decoded)
     list_of_msgs = decode(list_of_decoded)
-    print(list_of_msgs)
+    # print(list_of_msgs)
+    res = ""
     for i in range(len(list_of_msgs)):
-        print(list_of_msgs[i], end = '')
-    print()
-    return list_of_msgs
+        res += list_of_msgs[i]
+        # print(list_of_msgs[i], end = '')
+    # print()
+    return res
 
 
 
+# x = 5.2
+# if type(x) == int:
+#     print("yes")
+# else:
+#     print(x.is_integer())
