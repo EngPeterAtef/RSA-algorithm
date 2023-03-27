@@ -1,11 +1,9 @@
 import math
-import random
+# import random
 from Crypto.Util import number
 import os
 import socket
-import threading
 #constants
-# MAX_NUMBER_OF_DIGITS = len(str(sys.maxsize)) - 1 #=18
 HEADER = 64 #size of the header in bytes that will contain the length of the message
 SERVER = socket.gethostbyname(socket.gethostname())
 FORMAT = 'utf-8'
@@ -100,13 +98,13 @@ def isPrime(n):
     return True
     
 #function to get a random prime number
-def randPrime(seed,n):
-    random.seed(seed) #to get different random numbers each time
-    num = random.randint(2**(n-1)+1, 2**n-1)
-    while not isPrime(num):
-        # n = random.randint(start, end)
-        num = random.randint(2**(n-1)+1, 2**n-1)
-    return num
+# def randPrime(seed,n):
+#     random.seed(seed) #to get different random numbers each time
+#     num = random.randint(2**(n-1)+1, 2**n-1)
+#     while not isPrime(num):
+#         # n = random.randint(start, end)
+#         num = random.randint(2**(n-1)+1, 2**n-1)
+#     return num
 
 #msg_coded is the plaintext
 def encrypt(msg_coded,e,n):
@@ -166,7 +164,7 @@ def keyGeneration(n_bits):
         p = number.getPrime(n_bits, os.urandom)
     # p = 138014606015037877
     # q = 371821189834863247
-    print(f"p = {p} and q = {q}")
+    # print(f"p = {p} and q = {q}")
     n = p * q
     phi = (q-1) * (p-1)
     e = 2 #public key gcd(e, phie) = 1
@@ -188,12 +186,19 @@ def keyGeneration(n_bits):
 #this function calculates a^e mod n        
 def modularExponent(a, e, n):
     e = bin(e)[2:]#because the first two characters are 0b
+    # print("e",e)
+    # print("e[0]",e[0])
     e = e[::-1]#reverse the string
+    # print("e",e)
+    # print("e[0]",e[0])
     x = 1#the result
+    a = a % n
     for i in range(len(e)):
+        print(f"x = {x} and a = {a} , e[i] = {e[i]}")
         if e[i] == '1':
             x = x * a % n
         a = a * a % n
+
     return x
 
 #msg_cipher is the ciphertext
@@ -234,3 +239,24 @@ def decryption(private_key,list_of_ciphers):
 #     print("yes")
 # else:
 #     print(x.is_integer())
+
+# this function performs the fermat factoring algorithm to find the factors of n
+# def fermatFactoringAlgo(n: int):
+#     # find the square root of n
+#     k = math.ceil(math.sqrt(n))
+#     # find the square of k
+#     h_square = k * k - n
+#     # find the square root of h_square
+#     h = int(math.sqrt(h_square))
+#     # while the square of h is not equal to h_square
+#     while h * h != h_square:
+#         # increase a by 1
+#         k = k + 1
+#         # find the square of k
+#         h_square = k * k - n
+#         # find the square root of h_square
+#         h = int(math.sqrt(h_square))
+#     # return the factors
+#     return k - h, k + h
+
+# print(modularExponent(5, 96, 1234))
