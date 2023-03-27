@@ -162,6 +162,8 @@ def keyGeneration(n_bits):
     #for n bits it will generate prime with 2^n <= p < 2^(n+1)
     q = number.getPrime(n_bits, os.urandom)
     p = number.getPrime(n_bits, os.urandom)
+    if p == q: 
+        p = number.getPrime(n_bits, os.urandom)
     # p = 138014606015037877
     # q = 371821189834863247
     print(f"p = {p} and q = {q}")

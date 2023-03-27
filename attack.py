@@ -58,6 +58,7 @@ if __name__ == "__main__":
     print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
     res = 0
     for i in range(len(threads)):
+        print(f"thread {i} is alive")
         threads[i].join()
         # if results[i] > res:
         #     res = results[i]

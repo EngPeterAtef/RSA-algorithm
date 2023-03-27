@@ -73,12 +73,12 @@ def start_listening():
         conn.send(str(puplic_key[1]).encode(FORMAT))
         e = conn.recv(2024).decode(FORMAT)
         n = conn.recv(2024).decode(FORMAT)
-        thread = threading.Thread(target=handle_msg, args=(conn, addr,e,n))
-        thread.start()
+        # thread = threading.Thread(target=handle_msg, args=(conn, addr,e,n))
+        # thread.start()
         #the number of active connections is the number of threads
         print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
         print(f"e = {e} n = {n}")
-        # handle_msg(conn, addr,e,n)
+        handle_msg(conn, addr,e,n)
         
 
 
