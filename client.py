@@ -63,6 +63,8 @@ def handle_msg(conn, addr):
 print("[STARTING] client is starting...")
 #create the keys
 puplic_key , private_key = keyGeneration(1024)
+print("puplic_key",puplic_key)
+
 _client.connect(ADDR)
 #the keys of the server
 e = _client.recv(2024).decode(FORMAT)

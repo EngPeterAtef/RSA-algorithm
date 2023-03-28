@@ -167,10 +167,15 @@ def keyGeneration(n_bits):
     # print(f"p = {p} and q = {q}")
     n = p * q
     phi = (q-1) * (p-1)
-    e = 2 #public key gcd(e, phie) = 1
+    print(f"phi = {phi}")
+    l = len(bin(phi)[2:])#this is the number of bits in phi
+    print(f"l = {l}")
+    # e = 2 #public key gcd(e, phie) = 1
+    e = number.getPrime(l//2, os.urandom)
     while (e < phi):
         # e must be co-prime to phi and
         # smaller than phi.
+        print(f"e = {e}")
         gcd = ExtendedEuclidianAlgo(e, phi)[0]
         if(gcd == 1):
             break
@@ -194,7 +199,7 @@ def modularExponent(a, e, n):
     x = 1#the result
     a = a % n
     for i in range(len(e)):
-        print(f"x = {x} and a = {a} , e[i] = {e[i]}")
+        # print(f"x = {x} and a = {a} , e[i] = {e[i]}")
         if e[i] == '1':
             x = x * a % n
         a = a * a % n
@@ -260,3 +265,4 @@ def decryption(private_key,list_of_ciphers):
 #     return k - h, k + h
 
 # print(modularExponent(5, 96, 1234))
+print(keyGeneration(10))

@@ -76,12 +76,13 @@ def start_listening():
         # thread = threading.Thread(target=handle_msg, args=(conn, addr,e,n))
         # thread.start()
         #the number of active connections is the number of threads
-        print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
+        # print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}") # -1 because of the main thread
         print(f"e = {e} n = {n}")
         handle_msg(conn, addr,e,n)
         
 
 
 puplic_key , private_key = keyGeneration(1024)
+print("puplic_key",puplic_key)
 print("[STARTING] server is starting...")
 start_listening()
