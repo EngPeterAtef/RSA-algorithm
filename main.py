@@ -1,8 +1,10 @@
+#Imports
 import math
 # import random
 from Crypto.Util import number
 import os
 import socket
+
 #constants
 HEADER = 64 #size of the header in bytes that will contain the length of the message
 SERVER = socket.gethostbyname(socket.gethostname())
@@ -90,13 +92,12 @@ def decode(list_of_codes):
 
 
 #function to check if a number is prime
-def isPrime(n):
-    for i in range(2,int(n**0.5)+1):
-        if n%i==0:
-            return False
+# def isPrime(n):
+#     for i in range(2,int(n**0.5)+1):
+#         if n%i==0:
+#             return False
         
-    return True
-    
+#     return True
 #function to get a random prime number
 # def randPrime(seed,n):
 #     random.seed(seed) #to get different random numbers each time
@@ -112,10 +113,15 @@ def encrypt(msg_coded,e,n):
     c = modularExponent(msg_coded,e,n)
     return c
 
-#this function get the gcd of 2 numbers and the coefficients of the linear combination
+#msg_cipher is the ciphertext
+def decrypt(msg_cipher, d, n):
+    msg_cipher = int(msg_cipher)
+    m = modularExponent(msg_cipher, d, n)
+    return m
+
+#this function get the gcd of 2 numbers and the coefficients of the linear combination(x,y)
 #where d = x*a + y*b
 def ExtendedEuclidianAlgo(a, b):
-
 	# base case
 	if b == 0 :
 		return a, 1, 0 # gcd(a,0) = a*1 + 0*0 = a
@@ -160,17 +166,17 @@ def keyGeneration(n_bits):
     #for n bits it will generate prime with 2^n <= p < 2^(n+1)
     q = number.getPrime(n_bits, os.urandom)
     p = number.getPrime(n_bits, os.urandom)
-    if p == q: 
+    while p == q: 
         p = number.getPrime(n_bits, os.urandom)
-    # p = 138014606015037877
-    # q = 371821189834863247
     # print(f"p = {p} and q = {q}")
     n = p * q
     phi = (q-1) * (p-1)
     print(f"phi = {phi}")
     l = len(bin(phi)[2:])#this is the number of bits in phi
     print(f"l = {l}")
-    # e = 2 #public key gcd(e, phie) = 1
+    # we will initialize e to a random prime whose length is half of the length of phi
+    # the initial value will not always be co-prime to phi
+    # so we will increment it till we find a co-prime
     e = number.getPrime(l//2, os.urandom)
     while (e < phi):
         # e must be co-prime to phi and
@@ -181,6 +187,8 @@ def keyGeneration(n_bits):
             break
         else:
             e = e+1
+            if e==phi:
+                e = 2
     # Private key (d) using extended Euclid Algorithm
     d = linearCongruence(e, 1, phi)
     
@@ -206,11 +214,6 @@ def modularExponent(a, e, n):
 
     return x
 
-#msg_cipher is the ciphertext
-def decrypt(msg_cipher, d, n):
-    msg_cipher = int(msg_cipher)
-    m = modularExponent(msg_cipher, d, n)
-    return m
 
 def encryption(msg,public_key):
     list_of_blocks = preprocessing(msg)
@@ -237,32 +240,21 @@ def decryption(private_key,list_of_ciphers):
     # print()
     return res
 
-
-
-# x = 5.2
-# if type(x) == int:
-#     print("yes")
-# else:
-#     print(x.is_integer())
-
 # this function performs the fermat factoring algorithm to find the factors of n
-# def fermatFactoringAlgo(n: int):
-#     # find the square root of n
-#     k = math.ceil(math.sqrt(n))
-#     # find the square of k
-#     h_square = k * k - n
-#     # find the square root of h_square
-#     h = int(math.sqrt(h_square))
-#     # while the square of h is not equal to h_square
-#     while h * h != h_square:
-#         # increase a by 1
-#         k = k + 1
-#         # find the square of k
-#         h_square = k * k - n
-#         # find the square root of h_square
-#         h = int(math.sqrt(h_square))
-#     # return the factors
-#     return k - h, k + h
-
-# print(modularExponent(5, 96, 1234))
-print(keyGeneration(10))
+def fermatFactoringAlgo(n: int):
+    # find the square root of n
+    k = math.ceil(math.sqrt(n))
+    # find the square of k
+    h_square = k * k - n
+    # find the square root of h_square
+    h = int(math.sqrt(h_square))
+    # while the square of h is not equal to h_square
+    while h * h != h_square:
+        # increase a by 1
+        k = k + 1
+        # find the square of k
+        h_square = k * k - n
+        # find the square root of h_square
+        h = int(math.sqrt(h_square))
+    # return the factors
+    return k - h, k + h

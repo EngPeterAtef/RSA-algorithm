@@ -28,4 +28,4 @@ RSA implementation using python
 1. main.py : contains all the functions implementaions and all the imports
 2. server.py: contains the server code that establish the connection
 3. client.py: contains the client code that connects with the server
-4. attack.ipynb: contains the brute-force attack code
+4. attack.ipynb: contains the Brute-Force Attack and Fermat factoring algorithm Attack code.
