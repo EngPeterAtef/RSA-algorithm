@@ -24,12 +24,16 @@ def handle_msg(conn, addr):
             send(DISCONNECT_MESSAGE)
             break
         list_of_ciphers = encryption(msg, (int(e), int(n)))
-        send(str(list_of_ciphers))
+        str_number_of_ciphers_enc = str(encryption(str(len(list_of_ciphers)), (int(e), int(n))))
+        print("str_number_of_ciphers_enc",str_number_of_ciphers_enc)
+        send(str_number_of_ciphers_enc[1:len(str_number_of_ciphers_enc)-1])
+        for i in range(len(list_of_ciphers)):
+            send(str(list_of_ciphers[i]))
         print(_client.recv(2024).decode(FORMAT))
         print("typing....")
         #receive the header that contains the length of the message
         msg_length = conn.recv(HEADER).decode(FORMAT)
-        list_of_ciphers.clear()
+        list_of_ciphers = []
         #if the header is empty, the client has disconnected
         if msg_length:
             msg_length = int(msg_length)
@@ -38,23 +42,21 @@ def handle_msg(conn, addr):
             #to handle disconnection
             if msg == DISCONNECT_MESSAGE:
                 break
-            tempList = msg.split(",")
-            # print("tempList",tempList)
-            if len(tempList) == 1:
-                if tempList[0] != '[]': #to handle the case of empty string sent by the client
-                    list_of_ciphers.append(int(tempList[0][1:len(tempList[0])-1]))
-                
-            else:
-                for i in range(len(tempList)):
-                    if i==0:
-                        list_of_ciphers.append(int(tempList[i][1:]))
-                    elif i==len(tempList)-1:
-                        list_of_ciphers.append(int(tempList[i][:len(tempList[i])-1]))
-                    else:
-                        list_of_ciphers.append(int(tempList[i]))
+            length_ciphers = decryption(private_key,[int(msg)])
+            print("length_ciphers",length_ciphers)
+            list_of_ciphers = []
+            for i in range(int(length_ciphers)):
+                msg_length = conn.recv(HEADER).decode(FORMAT)
+                if msg_length:
+                    msg_length = int(msg_length)
+                    #receive the actual message
+                    msg = conn.recv(msg_length).decode(FORMAT)
+                    #to handle disconnection
+                    if msg == DISCONNECT_MESSAGE:
+                        break
+                    list_of_ciphers.append(int(msg))
             res = decryption(private_key,list_of_ciphers)
             print(res)
-            # print(f"[{addr}] {msg}")
             print("-----------------------------------------")
             conn.send("MSG RECEIVED".encode(FORMAT))
     conn.close()
@@ -62,7 +64,7 @@ def handle_msg(conn, addr):
 
 print("[STARTING] client is starting...")
 #create the keys
-puplic_key , private_key = keyGeneration(1024)
+puplic_key , private_key = keyGeneration(512)
 print("puplic_key",puplic_key)
 
 _client.connect(ADDR)
@@ -70,7 +72,7 @@ _client.connect(ADDR)
 e = _client.recv(2024).decode(FORMAT)
 n = _client.recv(2024).decode(FORMAT)
 print(f"e = {e} n = {n}")
-
+print("patoraaa")
 _client.send(str(puplic_key[0]).encode(FORMAT))
 _client.send(str(puplic_key[1]).encode(FORMAT))
 
