@@ -75,8 +75,8 @@ def start_listening():
         conn, addr = _server.accept() #blocking line so we will wait till a client connects
         conn.send(str(puplic_key[0]).encode(FORMAT))
         conn.send(str(puplic_key[1]).encode(FORMAT))
-        e = conn.recv(2024).decode(FORMAT)
-        n = conn.recv(2024).decode(FORMAT)
+        e = conn.recv(2*n_bits).decode(FORMAT)
+        n = conn.recv(2*n_bits).decode(FORMAT)
         # thread = threading.Thread(target=handle_msg, args=(conn, addr,e,n))
         # thread.start()
         #the number of active connections is the number of threads
@@ -85,8 +85,9 @@ def start_listening():
         handle_msg(conn, addr,e,n)
         
 
+n_bits = 1024
 
-puplic_key , private_key = keyGeneration(512)
+puplic_key , private_key = keyGeneration(n_bits)
 print("puplic_key",puplic_key)
 print("[STARTING] server is starting...")
 start_listening()

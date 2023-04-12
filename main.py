@@ -173,7 +173,7 @@ def keyGeneration(n_bits):
     phi = (q-1) * (p-1)
     print(f"phi = {phi}")
     l = len(bin(phi)[2:])#this is the number of bits in phi
-    print(f"l = {l}")
+    # print(f"l = {l}")
     # we will initialize e to a random prime whose length is half of the length of phi
     # the initial value will not always be co-prime to phi
     # so we will increment it till we find a co-prime
