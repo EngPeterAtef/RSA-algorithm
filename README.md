@@ -1,6 +1,6 @@
 # RSA-algorithm
 
-RSA implementation using python
+RSA implementation using python. This repository also contains two types of attacks on RSA. It also contains a socket programming to send and receive messages using RSA algorithm.
 
 #### **How to Run?**
 
